@@ -8,6 +8,8 @@ options:
 packages:
   Minimuxer:
     path: Dependencies/minimuxer
+  MinimuxerGateway:
+    path: Dependencies/minimuxer/DeviceGateway
   SideSign:
     path: Dependencies/SideSign
   AnisetteKit:
@@ -41,6 +43,8 @@ targets:
     dependencies:
       - package: Minimuxer
         product: Minimuxer
+      - package: MinimuxerGateway
+        product: DeviceGatewayAPI
       - package: SideSign
         product: SideSign
       - package: AnisetteKit

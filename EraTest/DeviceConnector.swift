@@ -1,5 +1,6 @@
 import Foundation
 import Minimuxer
+import DeviceGatewayAPI
 
 /// Lock-protected storage backing the ConnectionConfigBinding closures
 /// (mirrors what SideStore's ConnectionConfig holds for the local-VPN mode).
