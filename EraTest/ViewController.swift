@@ -233,7 +233,7 @@ final class ViewController: UIViewController {
                     appleID: appleID,
                     password: password,
                     pairingContent: pairing,
-                    verificationHandler: twoFactorBridge.handler
+                    twoFactorBridge: twoFactorBridge
                 )
                 loginStatusLabel.text = "登入＋註冊完成（詳見日誌）"
             } catch {

@@ -80,7 +80,7 @@ final class LoginService: @unchecked Sendable {
     func signInAndRegisterDevice(appleID: String,
                                  password: String,
                                  pairingContent: String,
-                                 verificationHandler: DeveloperPortal.VerificationHandler) async throws {
+                                 twoFactorBridge: TwoFactorBridge) async throws {
         let anisetteData = try await fetchAnisetteData()
 
         EraLog.shared.log("[登入] 開始 SRP 登入: \(appleID)")
@@ -89,7 +89,11 @@ final class LoginService: @unchecked Sendable {
             password: password,
             anisetteData: anisetteData,
             xcodeVersion: Self.xcodeVersion,
-            verificationHandler: verificationHandler
+            machinePassword: nil,
+            accountRepairHandler: DeveloperPortal.defaultAccountRepairHandler,
+            verificationHandler: { request in
+                try await twoFactorBridge.awaitResponse(for: request)
+            }
         )
         EraLog.shared.log("[登入] 登入成功: \(authSession.account.appleID)（\(authSession.account.name)）")
 

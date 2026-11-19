@@ -11,13 +11,7 @@ final class TwoFactorBridge: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<TwoFactorResponse, Error>?
 
-    var handler: DeveloperPortal.VerificationHandler {
-        { [self] request in
-            try await self.awaitResponse(for: request)
-        }
-    }
-
-    private func awaitResponse(for request: TwoFactorRequest) async throws -> TwoFactorResponse {
+    func awaitResponse(for request: TwoFactorRequest) async throws -> TwoFactorResponse {
         EraLog.shared.log("[2FA] 收到請求: \(String(describing: request))")
         return try await withCheckedThrowingContinuation { continuation in
             lock.lock()
