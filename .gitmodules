@@ -1,0 +1,6 @@
+[submodule "Dependencies/minimuxer"]
+	path = Dependencies/minimuxer
+	url = https://github.com/SideStore/minimuxer.git
+[submodule "Dependencies/SideSign"]
+	path = Dependencies/SideSign
+	url = https://github.com/yongshuai1013/SideSign.git
