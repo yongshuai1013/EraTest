@@ -39,6 +39,24 @@
    簡訊選號＋驗證碼輸入）→ 取 Team → 經 minimuxer 取得 UDID 並向
    Developer Portal 註冊裝置（順序照 0.6.4 SignInOperation）。
 
+## v2 量測追加（版本組成與登入流程不變）
+
+v1 真機首跑 fetchUDID 兩次皆回 nil 且無錯誤——讀 minimuxer @2e72b199
+源碼定讞：lockdown 模式的 `syncFetchUDID` 只查 muxer 內部 usbmuxd
+裝置清單，清單空即 nil、不做 lockdown 交換。v2 只加量測：
+
+1. **直接 lockdown 測試按鈕**：經 facade 的 `gateway.getLockdownValue`
+   依序取 UniqueDeviceID／ProductVersion，走真實 TCP＋lockdown
+   handshake＋GetValue，值或 gateway 錯誤（code＋reason）逐字入日誌。
+2. **muxer 狀態傾印**：此釘版 minimuxer 的 logging 僅 print 至主控台、
+   無 handler 可接，故改以公開 API 傾印可觀察狀態（connection mode、
+   binding 回寫的 peer IP／reachability、介面掃描、peer TCP probe、
+   `core.isReady` 的分段結果），前綴 `[muxer]`。
+   （usbmuxd get_devices 的 count 無公開 API 可讀，未能傾印。）
+3. **連接測試補驅動**：在 v1 的 bind→start 之後，額外明示驅動
+   `network.refreshEndpoint()`（介面掃描＋peer 推導/probe＋endpoint
+   更新），並在前後各傾印一次狀態。
+
 ## 建置
 
 CI（GitHub Actions, macOS）：XcodeGen 產生專案 → xcodebuild Release

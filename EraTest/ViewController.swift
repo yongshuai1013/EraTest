@@ -10,6 +10,7 @@ final class ViewController: UIViewController {
     // Connection section
     private let connectionResultLabel = ViewController.bodyLabel()
     private let testButton = ViewController.makeButton("開始連接測試")
+    private let directLockdownButton = ViewController.makeButton("直接 lockdown 測試")
 
     // Login section
     private let appleIDField = UITextField()
@@ -106,9 +107,11 @@ final class ViewController: UIViewController {
 
         // Connection section
         testButton.addTarget(self, action: #selector(testTapped), for: .touchUpInside)
+        directLockdownButton.addTarget(self, action: #selector(directLockdownTapped), for: .touchUpInside)
         stack.addArrangedSubview(ViewController.sectionTitle("連接測試"))
         stack.addArrangedSubview(connectionResultLabel)
         stack.addArrangedSubview(testButton)
+        stack.addArrangedSubview(directLockdownButton)
 
         // Login section
         appleIDField.placeholder = "Apple ID"
@@ -195,7 +198,7 @@ final class ViewController: UIViewController {
         connectionResultLabel.text = "連接中…"
         Task {
             do {
-                let udid = try await DeviceConnector.shared.fetchUDID(pairingContent: pairing)
+                let udid = try await DeviceConnector.shared.runConnectionDiagnostics(pairingContent: pairing)
                 if let udid = udid, !udid.isEmpty {
                     connectionResultLabel.text = "連接成功\n裝置 UDID: \(udid)"
                     EraLog.shared.log("[連接] 測試成功，UDID: \(udid)")
@@ -207,6 +210,21 @@ final class ViewController: UIViewController {
                 connectionResultLabel.text = "連接失敗: \(error.localizedDescription)"
                 EraLog.shared.log("[連接] 測試失敗: \(error.localizedDescription) | \(String(describing: error))")
             }
+            setBusy(false)
+        }
+    }
+
+    @objc private func directLockdownTapped() {
+        view.endEditing(true)
+        guard let pairing = PairingStore.shared.pairingContent else {
+            connectionResultLabel.text = "請先匯入配對檔"
+            return
+        }
+        setBusy(true)
+        connectionResultLabel.text = "直接 lockdown 測試中…（結果見日誌）"
+        Task {
+            await DeviceConnector.shared.directLockdownTest(pairingContent: pairing)
+            connectionResultLabel.text = "直接 lockdown 測試完成（結果見日誌）"
             setBusy(false)
         }
     }
@@ -312,6 +330,7 @@ final class ViewController: UIViewController {
     private func setBusy(_ busy: Bool) {
         importButton.isEnabled = !busy
         testButton.isEnabled = !busy
+        directLockdownButton.isEnabled = !busy
         signInButton.isEnabled = !busy
     }
 }
