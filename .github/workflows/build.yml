@@ -1,0 +1,64 @@
+name: Build EraTest
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build EraTest (unsigned IPA)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: "26.4"
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies -project EraTest.xcodeproj -scheme EraTest | tee resolve.log
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project EraTest.xcodeproj \
+            -scheme EraTest \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DD \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            | tee build.log
+
+      - name: Package IPA
+        run: |
+          APP_PATH=$(find build/DD/Build/Products/Release-iphoneos -maxdepth 1 -name 'EraTest.app' | head -1)
+          echo "App: $APP_PATH"
+          rm -rf Payload && mkdir Payload
+          cp -R "$APP_PATH" Payload/
+          zip -qry EraTest.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EraTest-ipa
+          path: EraTest.ipa
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-logs
+          path: |
+            build.log
+            resolve.log

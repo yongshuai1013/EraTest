@@ -1,0 +1,47 @@
+name: EraTest
+options:
+  bundleIdPrefix: com.yongshuai
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+
+packages:
+  Minimuxer:
+    path: Dependencies/minimuxer
+  SideSign:
+    path: Dependencies/SideSign
+  AnisetteKit:
+    url: https://github.com/yongshuai1013/AnisetteKit.git
+    revision: 2b4a643f5302826828bf36580fee61aba655b6bb
+
+targets:
+  EraTest:
+    type: application
+    platform: iOS
+    sources:
+      - path: EraTest
+    info:
+      path: EraTest/Info.plist
+      properties:
+        CFBundleDisplayName: EraTest
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yongshuai.eratest
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+    dependencies:
+      - package: Minimuxer
+        product: Minimuxer
+      - package: SideSign
+        product: SideSign
+      - package: AnisetteKit
+        product: AnisetteKit
